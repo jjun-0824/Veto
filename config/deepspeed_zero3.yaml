@@ -1,0 +1,24 @@
+compute_environment: LOCAL_MACHINE # run on a local machine (single server)
+debug: false
+deepspeed_config:
+  bf16_enabled: true
+  deepspeed_multinode_launcher: standard
+  offload_optimizer_device: none # offload optimizer states (momentum, m, v, ...) to CPU/NVMe; none = keep on GPU
+  offload_param_device: cpu # offload model params to CPU (ZeRO-3); greatly reduces GPU VRAM at the cost of CPU RAM / I/O latency
+  offload_param_pin_memory: true # use pinned memory for CPU offload to speed up GPU<->CPU (DMA) transfers
+  zero3_init_flag: true
+  zero3_save_16bit_model: true # save a consolidated 16-bit model (needs extra CPU RAM)
+  zero_stage: 3
+distributed_type: DEEPSPEED # use DeepSpeed (other options: NO, MULTI_GPU, TPU, FSDP)
+downcast_bf16: "no"
+machine_rank: 0
+main_training_function: main
+mixed_precision: bf16
+num_machines: 1
+num_processes: 4
+rdzv_backend: static
+same_network: true
+tpu_env: []
+tpu_use_cluster: false
+tpu_use_sudo: false
+use_cpu: false

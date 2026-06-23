@@ -1,0 +1,63 @@
+# Task specific data
+task_params:
+  task_type: "code"
+  inp_length: 1024
+  max_new_tokens: 2048 #  768 #1024 #
+  # max_length: 1152 # This will be calculated as inp_length + max_new_tokens
+  expected_seq_len: 0
+
+
+# Knowledge Distillation (KD) settings
+kd_params:
+  # kd_type can be "skd", "supervised_kd", "on-policy", "mixed", "mixed_skd" and "mixed_train"
+  kd_type: "on-policy"
+  # top_k stays 0 except kd_type is 'skd'. You need to specify top_k for skd
+  top_k: 25
+  # mixed_ratio: 0.5 # Uncomment and set if using a 'mixed' type
+  # ---- Veto target reformulation (beta) ----
+  B_start: 1.2      # beta value at the start of training
+  B_end: 0.0          # beta value at the end of training (0.0 = pure teacher target)
+  B_schedule: "linear"  # "linear" (decay) or "const" (fixed)
+
+  # Shared KD parameters
+  student_temperature: 0.5
+  student_top_p: 0.5
+  teacher_temperature: 0.2
+  teacher_top_p: 0.5
+  distance_metric: "kl"
+
+# Training parameters
+training_params:
+  seed: 20
+  lr: 1.0e-5
+  grad_acc_size: 4
+  num_epoch: 3 #3
+  eval_step: 250
+  early_stop_epoch: 3
+  mixed_precision: "bf16" # accelerate option
+
+# Model and Tokenizer settings
+model_params:
+  # Path to the SFT teacher model checkpoint
+  checkpoint_template: ./checkpoints/Qwen2-7B-Instruct-code_10k-sft
+  # Path to the assistant/student model checkpoint (often the result of a previous stage)
+  assistant_checkpoint_template: Qwen/Qwen2-0.5B-Instruct #./checkpoints/Qwen2-0.5B-Instruct-gsm_7k-sft/checkpoint-96 #Qwen/Qwen2-0.5B-Instruct #./checkpoints/Qwen2-0.5B-Instruct-gsm_7k-sft #Qwen/Qwen2-0.5B-Instruct # Example "{task_type}_on-policy_0_kd_from_sft_teacher_t_0.2_p_0.5_student_t_0.5_p_0.5_kl/{task_type}_seed_{seed}_on-policy_kl_0_efficient_kd-gemma-2b-sft-{task_type}_jsd_beta_None_regular_run", adjust as needed
+  # assistant_checkpoint_override: "gemma-2b-sft-gsm_100" # Optional: Uncomment to directly specify assistant checkpoint path, ignoring template
+  tokenizer_name: Qwen/Qwen2-7B-Instruct
+
+# Resource and Environment settings
+resource_params:
+  gpu_group: "0,1"
+  num_processes: 2
+  main_process_port: 29501 # Change if running multiple DDP trainings on the same server
+  # User specific settings - MODIFY THESE
+  user: your_username        # IMPORTANT: change to your username
+  wandb_key: 'YOUR_WANDB_API_KEY' # IMPORTANT: Change this to your W&B key
+  wandb_proj: kd # IMPORTANT: Change this to your W&B project
+
+
+# Execution and Logging settings
+exec_params:
+  debug_enable: False
+  enable_stop_token: True
+  ckpt_prefix: "on-policy-contrastive-add-1_2-schedule-code" # "supervised-kd-contrastive-add-0_0-code" #"on-policy-contrastive-add-1_0-schedule-code" #"on-policy-contrastive-add-0_3_code" # -contrastive-add-0_0-7k-reverse" #"on-policy-contrastive-add-cka-epoch6-7k" #"skd-on-policy-cor-rate"

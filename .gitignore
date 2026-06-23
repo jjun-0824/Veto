@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Training artifacts
+logs/
+checkpoints/
+wandb/
+*.log
+
+# Generated rollout dumps
+*.input.rank*
+*.output.rank*
+
+# Files staged for review/removal before public release
+_to_review/
